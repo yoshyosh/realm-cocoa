@@ -134,7 +134,7 @@
                                                           encoding:NSUTF8StringEncoding];
 
                 Class cls = [RLMSchema classForString:_objectClassName];
-                if (!RLMIsSubclass(cls, RLMObject.class)) {
+                if (!RLMIsSubclass(cls, RLMObjectBase.class)) {
                     @throw [NSException exceptionWithName:@"RLMException"
                                                    reason:[NSString stringWithFormat:@"'%@' is not supported as an RLMArray object type. The protocol for an RLMArray property must be defined with RLM_ARRAY_TYPE. See http://realm.io/docs/cocoa/latest/api/Protocols/RLM_ARRAY_TYPE.html for more information.", self.objectClassName]
                                                  userInfo:nil];
@@ -156,7 +156,7 @@
 
                 // verify type
                 Class cls = [RLMSchema classForString:className];
-                if (!RLMIsSubclass(cls, RLMObject.class)) {
+                if (!RLMIsSubclass(cls, RLMObjectBase.class)) {
                     @throw [NSException exceptionWithName:@"RLMException"
                                                    reason:[NSString stringWithFormat:@"'%@' is not supported as an RLMObject property. All properties must be primitives, NSString, NSDate, NSData, RLMArray, or subclasses of RLMObject. See http://realm.io/docs/cocoa/latest/api/Classes/RLMObject.html for more information.", self.objectClassName]
                                                  userInfo:nil];

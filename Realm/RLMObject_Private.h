@@ -22,10 +22,11 @@
 #import <tightdb/row.hpp>
 
 // RLMObject accessor and read/write realm
-@interface RLMObject () {
+@interface RLMObjectBase () {
   @public
     tightdb::Row _row;
     RLMRealm *_realm;
+    RLMObjectSchema *_objectSchema;
 }
 
 - (instancetype)initWithRealm:(RLMRealm *)realm

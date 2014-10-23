@@ -96,10 +96,12 @@
 
     // create array of RLMProperties, inserting properties of superclasses first
     Class cls = objectClass;
+    Class superClass = class_getSuperclass(cls);
     NSArray *props = @[];
-    while (cls != RLMObject.class) {
+    while (superClass != RLMObjectBase.class) {
         props = [[RLMObjectSchema propertiesForClass:cls] arrayByAddingObjectsFromArray:props];
-        cls = class_getSuperclass(cls);
+        cls = superClass;
+        superClass = class_getSuperclass(superClass);
     }
     schema.properties = props;
 

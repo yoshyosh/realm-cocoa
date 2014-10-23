@@ -41,7 +41,7 @@
 
 @end
 
-@interface RLMObject (Swift)
+@interface RLMObjectBase (Swift)
 
 - (instancetype)initWithRealm:(RLMRealm *)realm schema:(RLMObjectSchema *)schema defaultValues:(BOOL)useDefaults;
 

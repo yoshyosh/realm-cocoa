@@ -18,7 +18,7 @@
 
 import Realm
 
-public class Object : RLMObject, Equatable {
+public class Object : RLMObjectBase, Equatable {
     // Get the names of all properties in the object which are of type List<>
     public class func getGenericListPropertyNames(obj: AnyObject) -> NSArray {
         let reflection = reflect(obj)
@@ -37,7 +37,9 @@ public class Object : RLMObject, Equatable {
         return properties
     }
 
-    // The property initializers don't get called without overriding this from Swift
+    // This is called by the obj-c accessor creation code, and if it's not
+    // overriden in Swift, the inline property initializers don't get called,
+    // and we require them for List<> properties
     public override init(realm: RLMRealm, schema: RLMObjectSchema, defaultValues: Bool) {
         super.init(realm: realm, schema: schema, defaultValues: defaultValues)
     }
@@ -51,9 +53,8 @@ public class Object : RLMObject, Equatable {
         super.init()
     }
 
-    // Override createInRealm() to accept Realm instead of RLMRealm
     public class func createInRealm(realm: Realm, withObject object: AnyObject) -> Self {
-        return createInRealm(realm.rlmRealm, withObject: object)
+        return unsafeBitCast(RLMCreateObjectInRealmWithValue(realm.rlmRealm, className(), object, .allZeros), self)
     }
 }
 

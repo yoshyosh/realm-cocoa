@@ -17,7 +17,12 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #import "RLMAccessor.h"
-#import "RLMResults.h"
+
+@class RLMRealm, RLMSchema, RLMObjectBase, RLMResults;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 //
 // Table modifications
@@ -25,12 +30,12 @@
 
 // sets a realm's schema to a copy of targetSchema
 // caches table accessors on each objectSchema
-void RLMRealmSetSchema(RLMRealm *realm, RLMSchema *targetSchema, bool verifyAndAlignColumns = true);
+void RLMRealmSetSchema(RLMRealm *realm, RLMSchema *targetSchema, bool verifyAndAlignColumns);
 
 // sets a realm's schema to a copy of targetSchema and creates/updates tables
 // if update existing is true, updates existing tables, otherwise validates existing tables
 // NOTE: must be called from within write transaction
-void RLMRealmCreateTables(RLMRealm *realm, RLMSchema *targetSchema, bool updateExisting = false);
+void RLMRealmCreateTables(RLMRealm *realm, RLMSchema *targetSchema, bool updateExisting);
 
 
 //
@@ -38,10 +43,10 @@ void RLMRealmCreateTables(RLMRealm *realm, RLMSchema *targetSchema, bool updateE
 //
 
 // add an object to the given realm
-void RLMAddObjectToRealm(RLMObject *object, RLMRealm *realm, RLMSetFlag options = 0);
+void RLMAddObjectToRealm(RLMObjectBase *object, RLMRealm *realm, RLMSetFlag options);
 
 // delete an object from its realm
-void RLMDeleteObjectFromRealm(RLMObject *object);
+void RLMDeleteObjectFromRealm(RLMObjectBase *object);
 
 // deletes all objects from a realm
 void RLMDeleteAllObjectsFromRealm(RLMRealm *realm);
@@ -53,7 +58,7 @@ RLMResults *RLMGetObjects(RLMRealm *realm, NSString *objectClassName, NSPredicat
 id RLMGetObject(RLMRealm *realm, NSString *objectClassName, id key);
 
 // create object from array or dictionary
-RLMObject *RLMCreateObjectInRealmWithValue(RLMRealm *realm, NSString *className, id value, RLMSetFlag options = 0);
+RLMObjectBase *RLMCreateObjectInRealmWithValue(RLMRealm *realm, NSString *className, id value, RLMSetFlag options);
 
 
 //
@@ -61,4 +66,8 @@ RLMObject *RLMCreateObjectInRealmWithValue(RLMRealm *realm, NSString *className,
 //
 
 // Create accessors
-RLMObject *RLMCreateObjectAccessor(RLMRealm *realm, NSString *objectClassName, NSUInteger index);
+RLMObjectBase *RLMCreateObjectAccessor(RLMRealm *realm, NSString *objectClassName, NSUInteger index);
+
+#ifdef __cplusplus
+}
+#endif

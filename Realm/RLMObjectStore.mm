@@ -17,6 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #import "RLMObjectStore.hpp"
+
 #import "RLMArray_Private.hpp"
 #import "RLMListBase.h"
 #import "RLMObjectSchema_Private.hpp"
@@ -27,6 +28,8 @@
 #import "RLMUtil.hpp"
 
 #import <objc/runtime.h>
+
+extern "C" {
 
 static void RLMVerifyAndAlignColumns(RLMObjectSchema *tableSchema, RLMObjectSchema *objectSchema) {
     NSMutableArray *properties = [NSMutableArray arrayWithCapacity:objectSchema.properties.count];
@@ -205,7 +208,7 @@ static inline void RLMVerifyInWriteTransaction(RLMRealm *realm) {
     RLMCheckThread(realm);
 }
 
-static inline void RLMConvertToAccessor(RLMObject *object) {
+static inline void RLMConvertToAccessor(RLMObjectBase *object) {
     object_setClass(object, object.objectSchema.accessorClass);
 
     // switch List<> properties to linkviews from standalone arrays
@@ -218,6 +221,8 @@ static inline void RLMConvertToAccessor(RLMObject *object) {
         }
     }
 }
+
+} // extern "C" {
 
 template<typename F>
 static inline NSUInteger RLMCreateOrGetRowForObject(RLMObjectSchema *schema, F primaryValueGetter, RLMSetFlag options, bool &created) {
@@ -249,7 +254,9 @@ static inline NSUInteger RLMCreateOrGetRowForObject(RLMObjectSchema *schema, F p
     return rowIndex;
 }
 
-void RLMAddObjectToRealm(RLMObject *object, RLMRealm *realm, RLMSetFlag options) {
+extern "C" {
+
+void RLMAddObjectToRealm(RLMObjectBase *object, RLMRealm *realm, RLMSetFlag options) {
     RLMVerifyInWriteTransaction(realm);
 
     // verify that object is standalone
@@ -310,14 +317,14 @@ void RLMAddObjectToRealm(RLMObject *object, RLMRealm *realm, RLMSetFlag options)
 }
 
 
-RLMObject *RLMCreateObjectInRealmWithValue(RLMRealm *realm, NSString *className, id value, RLMSetFlag options) {
+RLMObjectBase *RLMCreateObjectInRealmWithValue(RLMRealm *realm, NSString *className, id value, RLMSetFlag options) {
     // verify writable
     RLMVerifyInWriteTransaction(realm);
 
     // create the object
     RLMSchema *schema = realm.schema;
     RLMObjectSchema *objectSchema = schema[className];
-    RLMObject *object = [[objectSchema.objectClass alloc] initWithRealm:realm schema:objectSchema defaultValues:NO];
+    RLMObjectBase *object = [[objectSchema.accessorClass alloc] initWithRealm:realm schema:objectSchema defaultValues:NO];
 
     // validate values, create row, and populate
     if (NSArray *array = RLMDynamicCast<NSArray>(value)) {
@@ -363,7 +370,7 @@ RLMObject *RLMCreateObjectInRealmWithValue(RLMRealm *realm, NSString *className,
     return object;
 }
 
-void RLMDeleteObjectFromRealm(RLMObject *object) {
+void RLMDeleteObjectFromRealm(RLMObjectBase *object) {
     RLMVerifyInWriteTransaction(object.realm);
 
     // move last row to row we are deleting
@@ -449,13 +456,13 @@ id RLMGetObject(RLMRealm *realm, NSString *objectClassName, id key) {
 }
 
 // Create accessor and register with realm
-RLMObject *RLMCreateObjectAccessor(RLMRealm *realm, NSString *objectClassName, NSUInteger index) {
+RLMObjectBase *RLMCreateObjectAccessor(RLMRealm *realm, NSString *objectClassName, NSUInteger index) {
     RLMCheckThread(realm);
 
     RLMObjectSchema *objectSchema = realm.schema[objectClassName];
     
     // get accessor for the object class
-    RLMObject *accessor = [[objectSchema.accessorClass alloc] initWithRealm:realm schema:objectSchema defaultValues:NO];
+    RLMObjectBase *accessor = [[objectSchema.accessorClass alloc] initWithRealm:realm schema:objectSchema defaultValues:NO];
     tightdb::Table &table = *objectSchema->_table;
     accessor->_row = table[index];
 
@@ -464,3 +471,4 @@ RLMObject *RLMCreateObjectAccessor(RLMRealm *realm, NSString *objectClassName, N
     return accessor;
 }
 
+} // extern "C" {

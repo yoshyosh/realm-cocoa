@@ -16,14 +16,27 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <Realm/RLMConstants.h>
 
-//! Project version number for RealmSwift.
-FOUNDATION_EXPORT double RealmSwiftVersionNumber;
+@class RLMRealm;
+@class RLMObjectSchema;
 
-//! Project version string for RealmSwift.
-FOUNDATION_EXPORT const unsigned char RealmSwiftVersionString[];
+@interface RLMObjectBase : NSObject
+@property (nonatomic, readonly) RLMRealm *realm;
+@property (nonatomic, readonly) RLMObjectSchema *objectSchema;
+@property (nonatomic, readonly, getter = isDeletedFromRealm) BOOL deletedFromRealm;
 
-// In this header, you should import all the public headers of your framework using statements like #import <RealmSwift/PublicHeader.h>
+- (instancetype)init;
+- (instancetype)initWithObject:(id)object;
 
+- (BOOL)isEqualToObject:(RLMObjectBase *)object;
+- (NSArray *)linkingObjectsOfClass:(NSString *)className forProperty:(NSString *)property;
 
++ (NSString *)className;
+
++ (RLMPropertyAttributes)attributesForProperty:(NSString *)propertyName;
++ (NSDictionary *)defaultPropertyValues;
++ (NSString *)primaryKey;
++ (NSArray *)ignoredProperties;
+@end
