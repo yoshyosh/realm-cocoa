@@ -21,7 +21,7 @@ import Realm
 // MARK: Object Retrieval
 
 public func objects<T: Object>(type: T.Type) -> Results<T> {
-    return Results<T>(T.allObjectsInRealm(RLMRealm.defaultRealm()))
+    return Results<T>(RLMGetObjects(RLMRealm.defaultRealm(), T.className(), nil))
 }
 
 // MARK: Default Realm Helpers
@@ -91,17 +91,21 @@ public class Realm {
     // MARK: Mutating
 
     public func add(object: Object) {
-        rlmRealm.addObject(object)
+        RLMAddObjectToRealm(object, rlmRealm, .allZeros)
     }
 
     public func add<S where S: SequenceType>(objects: S) {
         for obj in objects {
-            rlmRealm.addObject(obj as RLMObject)
+            RLMAddObjectToRealm(obj as Object, rlmRealm, .allZeros)
         }
     }
 
     public func addOrUpdate(object: Object) {
-        rlmRealm.addOrUpdateObject(object)
+        if object.objectSchema.primaryKeyProperty == nil {
+            fatalError("'\(object.objectSchema.className)' does not have a primary key and can not be updated")
+        }
+
+        RLMAddObjectToRealm(object, rlmRealm, RLMSetFlag.UpdateOrCreate)
     }
 
     public func addOrUpdate<S where S: SequenceType>(objects: S) {
@@ -111,7 +115,7 @@ public class Realm {
     }
 
     public func delete(object: Object) {
-        rlmRealm.deleteObject(object)
+        RLMDeleteObjectFromRealm(object)
     }
 
     public func delete(objects: [Object]) {
@@ -123,7 +127,7 @@ public class Realm {
     }
 
     public func deleteAll() {
-        rlmRealm.deleteAllObjects()
+        RLMDeleteAllObjectsFromRealm(rlmRealm)
     }
 
     // MARK: Notifications
@@ -139,7 +143,7 @@ public class Realm {
     // MARK: Object Retrieval
 
     public func objects<T: Object>(type: T.Type) -> Results<T> {
-        return Results<T>(T.allObjectsInRealm(rlmRealm))
+        return Results<T>(RLMGetObjects(rlmRealm, T.className(), nil))
     }
 }
 

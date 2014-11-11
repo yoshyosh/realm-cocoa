@@ -27,3 +27,4 @@
 #import <Realm/RLMSchema.h>
 #import <Realm/RLMSwiftHelpers.h>
 #import <Realm/RLMListBase.h>
+#import <Realm/RLMObjectStore.hpp>

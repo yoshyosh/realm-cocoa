@@ -49,7 +49,7 @@ public final class List<T: Object>: ListBase, SequenceType {
     // MARK: Index Retrieval
 
     public func indexOf(object: T) -> UInt? {
-        return notFoundToNil(_rlmArray.indexOfObject(object))
+        return notFoundToNil(_rlmArray.indexOfObject(unsafeBitCast(object, RLMObject.self)))
     }
 
     public func indexOf(predicate: NSPredicate) -> UInt? {
@@ -111,17 +111,17 @@ public final class List<T: Object>: ListBase, SequenceType {
     // MARK: Mutating
 
     public func append(object: T) {
-        _rlmArray.addObject(object)
+        _rlmArray.addObject(unsafeBitCast(object, RLMObject.self))
     }
 
     public func append<S where S: SequenceType>(objects: S) {
         for obj in objects {
-            _rlmArray.addObject(obj as T)
+            _rlmArray.addObject(unsafeBitCast(obj as T, RLMObject.self))
         }
     }
 
     public func insert(object: T, atIndex index: UInt) {
-        _rlmArray.insertObject(object, atIndex: index)
+        _rlmArray.insertObject(unsafeBitCast(object, RLMObject.self), atIndex: index)
     }
 
     public func remove(index: UInt) {
@@ -143,7 +143,7 @@ public final class List<T: Object>: ListBase, SequenceType {
     }
     
     public func replace(index: UInt, object: T) {
-        _rlmArray.replaceObjectAtIndex(index, withObject: object)
+        _rlmArray.replaceObjectAtIndex(index, withObject: unsafeBitCast(object, RLMObject.self))
     }
 
     // MARK: Private stuff

@@ -55,7 +55,7 @@ public final class Results<T: Object>: Printable, SequenceType {
     // MARK: Index Retrieval
 
     public func indexOf(object: T) -> UInt? {
-        return notFoundToNil(rlmResults.indexOfObject(object))
+        return notFoundToNil(rlmResults.indexOfObject(unsafeBitCast(object, RLMObject.self)))
     }
 
     public func indexOf(predicate: NSPredicate) -> UInt? {
