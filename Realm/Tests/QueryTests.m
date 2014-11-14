@@ -1453,9 +1453,8 @@
     XCTAssertEqual(1U, [[AllTypesObject objectsWhere:@"objectCol.stringCol IN {'abc'}"] count]);
     XCTAssertEqual(0U, [[AllTypesObject objectsWhere:@"objectCol.stringCol IN {'def'}"] count]);
     XCTAssertEqual(0U, [[AllTypesObject objectsWhere:@"objectCol.stringCol IN {'ABC'}"] count]);
-    // FIXME: Shouldn't throw on insensitive link string queries
-    XCTAssertThrows([AllTypesObject objectsWhere:@"objectCol.stringCol IN[c] {'abc'}"]);
-    XCTAssertThrows([AllTypesObject objectsWhere:@"objectCol.stringCol IN[c] {'ABC'}"]);
+    XCTAssertEqual(1U, [[AllTypesObject objectsWhere:@"objectCol.stringCol IN[c] {'abc'}"] count]);
+    XCTAssertEqual(1U, [[AllTypesObject objectsWhere:@"objectCol.stringCol IN[c] {'ABC'}"] count]);
 
     ////////////////////////
     // Format Predicates
@@ -1516,9 +1515,9 @@
     XCTAssertEqual(1U, ([[AllTypesObject objectsWhere:@"objectCol.stringCol IN %@", @[@"abc"]] count]));
     XCTAssertEqual(0U, ([[AllTypesObject objectsWhere:@"objectCol.stringCol IN %@", @[@"def"]] count]));
     XCTAssertEqual(0U, ([[AllTypesObject objectsWhere:@"objectCol.stringCol IN %@", @[@"ABC"]] count]));
-    // FIXME: Shouldn't throw on insensitive link string queries
-    XCTAssertThrows(([[AllTypesObject objectsWhere:@"objectCol.stringCol IN[c] %@", @[@"abc"]] count]));
-    XCTAssertThrows(([[AllTypesObject objectsWhere:@"objectCol.stringCol IN[c] %@", @[@"ABC"]] count]));
+
+    XCTAssertEqual(1U, ([[AllTypesObject objectsWhere:@"objectCol.stringCol IN[c] %@", @[@"abc"]] count]));
+    XCTAssertEqual(1U, ([[AllTypesObject objectsWhere:@"objectCol.stringCol IN[c] %@", @[@"ABC"]] count]));
 }
 
 - (void)testArrayIn

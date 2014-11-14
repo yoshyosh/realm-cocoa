@@ -22,6 +22,8 @@
 
 @required
 
+@property (nonatomic, readonly, assign) NSUInteger count;
+
 - (id)objectAtIndex:(NSUInteger)index;
 - (id)firstObject;
 - (id)lastObject;
