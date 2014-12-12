@@ -48,7 +48,7 @@ void RLMRealmCreateAccessors(RLMSchema *schema);
 void RLMAddObjectToRealm(RLMObjectBase *object, RLMRealm *realm, RLMSetFlag options = 0);
 
 // delete an object from its realm
-void RLMDeleteObjectFromRealm(RLMObjectBase *object, RLMRealm *realm);
+void RLMDeleteObjectFromRealm(RLMObjectBase *object);
 
 // deletes all objects from a realm
 void RLMDeleteAllObjectsFromRealm(RLMRealm *realm);
