@@ -42,7 +42,6 @@
 @property (nonatomic, copy) NSString *objectClassName;
 
 // private properties
-@property (nonatomic, copy) NSString *objcRawType;
 @property (nonatomic, assign) char objcType;
 @property (nonatomic, assign) BOOL isPrimary;
 @property (nonatomic, assign) Ivar swiftListIvar;

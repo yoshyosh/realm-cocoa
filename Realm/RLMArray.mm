@@ -160,7 +160,7 @@ static void RLMValidateMatchingObjectType(RLMArray *array, RLMObject *object) {
 
 - (void)deleteObjectsFromRealm {
     for (RLMObject *obj in _backingArray) {
-        RLMDeleteObjectFromRealm(obj);
+        RLMDeleteObjectFromRealm(obj, _realm);
     }
 }
 

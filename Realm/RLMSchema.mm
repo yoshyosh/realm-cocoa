@@ -78,53 +78,56 @@ static NSMutableDictionary *s_localNameToClass;
 }
 
 + (void)initialize {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSMutableArray *schemaArray = [NSMutableArray array];
-        RLMSchema *schema = [[RLMSchema alloc] init];
+    static bool initialized;
+    if (initialized) {
+        return;
+    }
+    initialized = true;
 
-        unsigned int numClasses;
-        Class *classes = objc_copyClassList(&numClasses);
+    NSMutableArray *schemaArray = [NSMutableArray array];
+    RLMSchema *schema = [[RLMSchema alloc] init];
 
-        // first create class to name mapping so we can do array validation
-        // when creating object schema
-        s_localNameToClass = [NSMutableDictionary dictionary];
-        for (unsigned int i = 0; i < numClasses; i++) {
-            Class cls = classes[i];
-            if (!RLMIsSubclass(cls, RLMObjectBase.class)) {
-                continue;
-            }
+    unsigned int numClasses;
+    Class *classes = objc_copyClassList(&numClasses);
 
-            NSString *className = NSStringFromClass(cls);
-            if ([RLMSwiftSupport isSwiftClassName:className]) {
-                s_localNameToClass[[RLMSwiftSupport demangleClassName:className]] = cls;
-            }
-            // NSStringFromClass demangles the names for top-level Swift classes
-            // but not for nested classes. _T indicates it's a Swift symbol, t
-            // indicates it's a type, and CC indicates it's a class within a
-            // class (further nesting will add more Cs)
-            else if ([className hasPrefix:@"_TtCC"]) {
-                @throw [NSException exceptionWithName:@"RLMException"
-                                               reason:@"RLMObject subclasses cannot be nested within other classes"
-                                             userInfo:nil];
-            }
-            else {
-                s_localNameToClass[className] = cls;
-            }
+    // first create class to name mapping so we can do array validation
+    // when creating object schema
+    s_localNameToClass = [NSMutableDictionary dictionary];
+    for (unsigned int i = 0; i < numClasses; i++) {
+        Class cls = classes[i];
+        if (!RLMIsSubclass(cls, RLMObject.class)) {
+            continue;
         }
 
-        // process all RLMObject subclasses
-        for (Class cls in s_localNameToClass.allValues) {
-            [schemaArray addObject:[RLMObjectSchema schemaForObjectClass:cls createAccessors:YES]];
+        NSString *className = NSStringFromClass(cls);
+        if ([RLMSwiftSupport isSwiftClassName:className]) {
+            s_localNameToClass[[RLMSwiftSupport demangleClassName:className]] = cls;
         }
-        free(classes);
+        // NSStringFromClass demangles the names for top-level Swift classes
+        // but not for nested classes. _T indicates it's a Swift symbol, t
+        // indicates it's a type, and CC indicates it's a class within a
+        // class (further nesting will add more Cs)
+        else if ([className hasPrefix:@"_TtCC"]) {
+            @throw [NSException exceptionWithName:@"RLMException"
+                                           reason:@"RLMObject subclasses cannot be nested within other classes"
+                                         userInfo:nil];
+        }
+        else {
+            s_localNameToClass[className] = cls;
+        }
+    }
 
-        // set class array
-        schema.objectSchema = schemaArray;
+    // process all RLMObject subclasses
+    for (Class cls in s_localNameToClass.allValues) {
+        [schemaArray addObject:[RLMObjectSchema schemaForObjectClass:cls createAccessors:YES]];
+    }
+    free(classes);
 
-        // set shared schema
-        s_sharedSchema = schema;
-    });
+    // set class array
+    schema.objectSchema = schemaArray;
+
+    // set shared schema
+    s_sharedSchema = schema;
 }
 
 // schema based on runtime objects
@@ -224,6 +227,18 @@ void RLMRealmSetPrimaryKeyForObjectClass(RLMRealm *realm, NSString *objectClass,
     RLMSchema *schema = [[RLMSchema allocWithZone:zone] init];
     schema.objectSchema = [[NSArray allocWithZone:zone] initWithArray:self.objectSchema copyItems:YES];
     return schema;
+}
+
+- (BOOL)isEqualToSchema:(RLMSchema *)schema {
+    if (_objectSchema.count != schema.objectSchema.count) {
+        return NO;
+    }
+    for (RLMObjectSchema *objectSchema in schema.objectSchema) {
+        if (![_objectSchemaByName[objectSchema.className] isEqualToObjectSchema:objectSchema]) {
+            return NO;
+        }
+    }
+    return YES;
 }
 
 @end

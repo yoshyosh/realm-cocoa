@@ -7,14 +7,79 @@ x.x.x Release notes (yyyy-MM-dd)
 
 ### Enhancements
 
-* Added method `-linkingObjectsOfClass:forProperty:` to RLMObject to expose inverse
-  relashinships/backlinks.
+* Fix a memory leak when circularly linked objects are added to a Realm.
 
 ### Bugfixes
 
+* Merge native Swift default property values with defaultPropertyValues().
+
+
+0.88.0 Release notes (2014-12-02)
+=============================================================
+
+### API breaking changes
+
+* Deallocating an RLMRealm instance in a write transaction lacking an explicit
+  commit/cancel will now be automatically cancelled instead of committed.
+* `-[RLMObject isDeletedFromRealm]` has been renamed to `-[RLMObject isInvalidated]`.
+
+### Enhancements
+
+* Add `-[RLMRealm writeCopyToPath:]` to write a compacted copy of the Realm
+  another file.
+* Add support for case insensitive, BEGINSWITH, ENDSWITH and CONTAINS string
+  queries on array properties.
+* Make fast enumeration of `RLMArray` and `RLMResults` ~30% faster and
+  `objectAtIndex:` ~55% faster.
+* Added a lldb visualizer script for displaying the contents of persisted
+  RLMObjects when debugging.
+* Added method `-setDefaultRealmPath:` to change the default Realm path.
+* Add `-[RLMRealm invalidate]` to release data locked by the current thread.
+
+### Bugfixes
+
+* Fix for crash when running many simultaneous write transactions on background threads.
+* Fix for crashes caused by opening Realms at multiple paths simultaneously which have had
+  properties re-ordered during migration.
+* Don't run the query twice when `firstObject` or `lastObject` are called on an
+  `RLMResults` which has not had its results accessed already.
+* Fix for bug where schema version is 0 for new Realm created at the latest version.
+* Fix for error message where no migration block is specified when required.
+
+0.87.4 Release notes (2014-11-07)
+=============================================================
+
+### API breaking changes
+
+* None.
+
+### Enhancements
+
+* None.
+
+### Bugfixes
+
+* Fix browser location in release zip.
+
+0.87.3 Release notes (2014-11-06)
+=============================================================
+
+### API breaking changes
+
+* None.
+
+### Enhancements
+
+* Added method `-linkingObjectsOfClass:forProperty:` to RLMObject to expose inverse
+  relationships/backlinks.
+
+### Bugfixes
+
+* Fix for crash due to missing search index when migrating an object with a string primary key
+  in a database created using an older versions (0.86.3 and earlier).
 * Throw an exception when passing an array containing a
   non-RLMObject to -[RLMRealm addObjects:].
-
+* Fix for crash when deleting an object from multiple threads.
 
 0.87.0 Release notes (2014-10-21)
 =============================================================
