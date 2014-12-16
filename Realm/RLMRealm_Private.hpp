@@ -31,6 +31,7 @@ extern "C" {
     // expose ivar to to avoid objc messages in accessors
     BOOL _inWriteTransaction;
     mach_port_t _threadID;
+    NSThread *_thread;
 }
 @property (nonatomic, readonly) BOOL inWriteTransaction;
 @property (nonatomic, readonly) BOOL dynamic;
@@ -38,6 +39,7 @@ extern "C" {
 @property (nonatomic, readwrite) RLMSchema *schema;
 
 - (instancetype)initWithPath:(NSString *)path key:(NSData *)key readOnly:(BOOL)readonly inMemory:(BOOL)inMemory dynamic:(BOOL)dynamic error:(NSError **)error;
+- (void)handleExternalCommit;
 @end
 
 // throw an exception if the realm is being used from the wrong thread
