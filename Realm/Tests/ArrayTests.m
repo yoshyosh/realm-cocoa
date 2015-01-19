@@ -24,7 +24,61 @@
 @interface ArrayTests : RLMTestCase
 @end
 
+@interface RealmPoint : RLMObject
+@property NSInteger value;
+@end
+
+RLM_ARRAY_TYPE(RealmPoint)
+@implementation RealmPoint
+@end
+
+@interface RealmTrend : RLMObject
+@property NSString *name; // Primary Key
+@property int value;
+@property RLMArray<RealmPoint> *points;
+@end
+
+@implementation RealmTrend
+@end
+
 @implementation ArrayTests
+
+- (void)dispatch {
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        for (int i = 0; i < 1000; i++) {
+            RealmTrend *trend = [[RealmTrend allObjects] firstObject];
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [realm transactionWithBlock:^{
+                trend.value = 1;
+            }];
+
+            [realm transactionWithBlock:^{
+                NSInteger numPointsToAdd = arc4random()%10;
+                for (int i = 0; i < numPointsToAdd; i++) {
+                    [trend.points addObject:[[RealmPoint alloc] initWithObject:@[@(arc4random()%100)]]];
+                }
+                while (trend.points.count > 30) {
+                    [trend.points removeObjectAtIndex:0];
+                }
+            }];
+        }
+    });
+}
+
+- (void)testTrend {
+    [[RLMRealm defaultRealm] transactionWithBlock:^{
+        [RealmTrend createInDefaultRealmWithObject:@[@"name", @0, @[]]];
+    }];
+
+    for (int i = 0; i < 10; i++) {
+        [self dispatch];
+    }
+
+    while(1) {
+        sleep(1);
+    }
+}
+
 
 - (void)testFastEnumeration
 {
