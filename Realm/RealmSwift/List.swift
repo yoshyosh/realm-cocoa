@@ -26,17 +26,17 @@ public class ListBase: RLMListBase, Printable {
     // generic class.
     /// Returns a human-readable description of the objects contained in the list.
     @objc public override var description: String { return _rlmArray.description }
-    
+
     /// Returns the number of objects in this list.
     public var count: Int { return Int(_rlmArray.count) }
 }
 
 /**
- List<T> is the container type in Realm used to define to-many relationships.
+List<T> is the container type in Realm used to define to-many relationships.
 
- Lists hold a single `Object` subclass, `T`, which defines the "type" of the list.
+Lists hold a single `Object` subclass, `T`, which defines the "type" of the list.
 
- Lists can be filtered and sorted with the same predicates as `Results<T>`.
+Lists can be filtered and sorted with the same predicates as `Results<T>`.
 */
 public final class List<T: Object>: ListBase, SequenceType {
     // MARK: Properties
@@ -80,7 +80,7 @@ public final class List<T: Object>: ListBase, SequenceType {
     }
 
     /**
-    Returns the index of the first object matching the given predicate, 
+    Returns the index of the first object matching the given predicate,
     or `nil` if the object is not in the list.
 
     :param: predicate The predicate to filter the objects.
@@ -107,7 +107,7 @@ public final class List<T: Object>: ListBase, SequenceType {
 
     /**
     Returns the object at the given `index`.
-    
+
     :warning: You can only set an object during a write transaction.
 
     :param: index The index.
@@ -189,7 +189,7 @@ public final class List<T: Object>: ListBase, SequenceType {
 
     /**
     Appends the given object to the end of the list.
-    
+
     :warning: This method can only be called during a write transaction.
 
     :param: object An object.
@@ -238,7 +238,7 @@ public final class List<T: Object>: ListBase, SequenceType {
 
     /**
     Removes the given object from the list.
-    
+
     :warning: This method can only be called during a write transaction.
 
     :param: object An object.
@@ -251,7 +251,7 @@ public final class List<T: Object>: ListBase, SequenceType {
 
     /**
     Removes the last object in the List. Does not remove the object from the Realm.
-    
+
     :warning: This method can only be called during a write transaction.
     */
     public func removeLast() {
