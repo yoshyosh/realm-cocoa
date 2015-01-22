@@ -20,15 +20,6 @@
 
 @class RLMRealm;
 
-// A thread which waits for change notifications on the given path and notifies
-// all registered RLMRealms when a change occurs. Does *not* retain registered
-// RLMRealm instances
-@interface RLMChangeListener : NSThread
-- (instancetype)initWithPath:(NSString *)path
-                    inMemory:(BOOL)inMemory
-                       cache:(NSMutableDictionary *)cache;
-
-// This both must be called with `cache` locked
-- (void)addRealm:(RLMRealm *)realm;
-- (void)removeRealm:(RLMRealm *)realm;
-@end
+void RLMStartListeningForChanges(RLMRealm *realm);
+void RLMStopListeningForChanges(RLMRealm *realm);
+void RLMClearListeners();

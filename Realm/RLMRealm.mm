@@ -191,17 +191,6 @@ static void clearRealmCache() {
     }
 }
 
-static NSMutableDictionary *s_listenersPerPath = [NSMutableDictionary new];
-// must be called with s_listenersPerPath locked
-static RLMChangeListener *listenerForPath(NSString *path, BOOL inMemory, BOOL create=YES) {
-    RLMChangeListener *listener = s_listenersPerPath[path];
-    if (!listener && create) {
-        listener = [[RLMChangeListener alloc] initWithPath:path inMemory:inMemory cache:s_listenersPerPath];
-        s_listenersPerPath[path] = listener;
-    }
-    return listener;
-}
-
 //
 // Schema version and migration blocks
 //
@@ -247,7 +236,6 @@ static NSString * const c_defaultRealmFileName = @"default.realm";
     // Used for both
     Group *_group;
     BOOL _readOnly;
-    BOOL _inMemory;
 }
 
 + (BOOL)isCoreDebug {
@@ -268,7 +256,6 @@ static NSString * const c_defaultRealmFileName = @"default.realm";
     self = [super init];
     if (self) {
         _path = path;
-        _thread = [NSThread currentThread];
         _threadID = pthread_mach_thread_np(pthread_self());
         _notificationHandlers = [NSMapTable mapTableWithKeyOptions:NSPointerFunctionsWeakMemory valueOptions:NSPointerFunctionsWeakMemory];
         _readOnly = readonly;
@@ -514,16 +501,13 @@ static id RLMAutorelease(id value) {
             [realm invalidate];
         }
 
-    }
-
-    if (!readonly) {
-        @synchronized(s_listenersPerPath) {
-            [listenerForPath(path, inMemory) addRealm:realm];
+        if (!dynamic) {
+            cacheRealm(realm, path);
         }
     }
 
-    if (!dynamic) {
-        cacheRealm(realm, path);
+    if (!readonly) {
+        RLMStartListeningForChanges(realm);
     }
 
     return RLMAutorelease(realm);
@@ -554,6 +538,7 @@ static id RLMAutorelease(id value) {
     clearMigrationCache();
     clearRealmCache();
     clearKeyCache();
+//    RLMClearListeners();
 }
 
 static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a read-only Realm") {
@@ -706,9 +691,7 @@ static void CheckReadWrite(RLMRealm *realm, NSString *msg=@"Cannot write to a re
               "pending changes have been rolled back. Make sure to retain a reference to the "
               "RLMRealm for the duration of the write transaction.");
     }
-    @synchronized(s_listenersPerPath) {
-        [listenerForPath(_path, NO, NO) removeRealm:self];
-    }
+    RLMStopListeningForChanges(self);
 }
 
 - (void)handleExternalCommit {
