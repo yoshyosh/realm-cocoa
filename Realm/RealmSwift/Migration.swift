@@ -103,17 +103,16 @@ public func migrateRealm(path: String) -> NSError? {
     return RLMRealm.migrateRealmAtPath(path)
 }
 
-/**
-Migration encapsulates the information passed into a MigrationBlock when updating the schema version of a Realm instance.
-*/
-public class Migration {
+/// Migration encapsulates the information passed into a MigrationBlock when updating the schema version of a Realm instance.
+public final class Migration {
+
     // MARK: Properties
 
     /// The schema that describes the Realm before the migration is applied.
-    public var oldSchema: Schema { return Schema(rlmSchema: rlmMigration.oldSchema) }
+    public var oldSchema: Schema { return Schema(rlmMigration.oldSchema) }
 
     /// The schema that describes the Realm after applying the migration.
-    public var newSchema: Schema { return Schema(rlmSchema: rlmMigration.newSchema) }
+    public var newSchema: Schema { return Schema(rlmMigration.newSchema) }
 
     // MARK: Altering objects
 
